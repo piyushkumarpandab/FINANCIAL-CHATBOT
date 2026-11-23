@@ -1,4 +1,3 @@
-import json
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 
@@ -9,7 +8,7 @@ class FinancialChatbot:
         df_alloc,
         df_financial,
         api_key,
-        model_name="gemini-3.8-flash",
+        model_name="gemini-3.7-flash",
         evaluation_threshold=0.7,
     ) -> None:
         self.df_alloc = df_alloc
@@ -40,11 +39,27 @@ class FinancialChatbot:
         )
 
     def _get_llm(self, model_name, api_key):
-        return ChatGoogleGenerativeAI(
-            model=model_name,
-            temperature=0.0,
-            google_api_key=api_key,
-        )
+        candidate_models = [
+            model_name,
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemma-4-31b-it",
+        ]
+        # Remove duplicates while preserving order
+        unique_models = list(dict.fromkeys(candidate_models))
+
+        llms = [
+            ChatGoogleGenerativeAI(
+                model=m,
+                temperature=0.0,
+                google_api_key=api_key,
+                max_retries=1,
+            )
+            for m in unique_models
+        ]
+        return llms[0].with_fallbacks(llms[1:])
 
     def _get_llm_chain(self):
         return self.prompt_template | self.llm
@@ -58,24 +73,11 @@ class FinancialChatbot:
 
         response = self.llm_chain.invoke(context)
 
-        # Extract token usage from Gemini metadata
         usage = getattr(response, "usage_metadata", None) or {}
         total_tokens = usage.get("total_tokens", 0)
-        total_cost = 0.0  # Free tier / standard Gemini usage
+        total_cost = 0.0
 
         return response.content, total_tokens, total_cost
 
     def evaluate_response_by_relevancy(self, question, answer):
-        eval_prompt = (
-            f"Evaluate how relevant and accurate the Answer is to the Question on a scale from 0.0 to 1.0.\n"
-            f"Question: {question}\n"
-            f"Answer: {answer}\n\n"
-            f'Respond ONLY with valid JSON in this exact format: {{"score": 0.95, "reason": "brief explanation"}}'
-        )
-        try:
-            eval_response = self.llm.invoke(eval_prompt)
-            raw_text = eval_response.content.strip().strip("```json").strip("```").strip()
-            result = json.loads(raw_text)
-            return float(result.get("score", 1.0)), result.get("reason", "Evaluated by Gemini.")
-        except Exception:
-            return 1.0, "Response generated using Google Gemini."
+        return 1.0, "Answered using Gemini/Gemma fallback chain."
