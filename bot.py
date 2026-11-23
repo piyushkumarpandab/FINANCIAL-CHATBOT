@@ -23,7 +23,7 @@ class FinancialChatbot:
     def _get_prompt(self):
         return PromptTemplate.from_template(
             """
-            You are a financial advisor assistant. Here is the data of the client's portfolios and target allocations.
+            You are a helpful financial advisor assistant. Here is the data of the clients' portfolios and target allocations.
 
             Client Portfolio Data:
             {portfolio_data}
@@ -31,10 +31,8 @@ class FinancialChatbot:
             Client Target Allocations:
             {target_allocations}
 
-            Based on the above data, answer the following question:
+            Answer the user's question clearly and concisely using the data above when relevant, or general financial best practices if it is a general investing question:
             {question}
-                                                        
-            Think as you want, but provide only the final answer
             """
         )
 
@@ -47,7 +45,6 @@ class FinancialChatbot:
             "gemini-3.1-flash-lite",
             "gemma-4-31b-it",
         ]
-        # Remove duplicates while preserving order
         unique_models = list(dict.fromkeys(candidate_models))
 
         llms = [
@@ -73,11 +70,27 @@ class FinancialChatbot:
 
         response = self.llm_chain.invoke(context)
 
+        # Convert list-of-dicts content blocks into a plain string for streamlit-chat
+        content = response.content
+        if isinstance(content, list):
+            parts = []
+            for block in content:
+                if isinstance(block, dict) and "text" in block:
+                    parts.append(block["text"])
+                elif isinstance(block, str):
+                    parts.append(block)
+            answer_text = "\n".join(parts).strip()
+        else:
+            answer_text = str(content).strip()
+
+        if not answer_text:
+            answer_text = "I received your message, please try asking about a specific client portfolio (e.g., 'What is the portfolio for Client 1?')."
+
         usage = getattr(response, "usage_metadata", None) or {}
         total_tokens = usage.get("total_tokens", 0)
         total_cost = 0.0
 
-        return response.content, total_tokens, total_cost
+        return answer_text, total_tokens, total_cost
 
     def evaluate_response_by_relevancy(self, question, answer):
-        return 1.0, "Answered using Gemini/Gemma fallback chain."
+        return 1.0, "Answered using Gemini/Gemma."
