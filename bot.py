@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_community.callbacks import get_openai_callback
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric
