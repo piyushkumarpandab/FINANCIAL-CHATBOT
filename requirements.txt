@@ -1,9 +1,7 @@
 streamlit
 streamlit-chat
 pandas
-openai
 langchain
-langchain-openai
-langchain-experimental
-deepeval
+langchain-core
+langchain-google-genai
 tabulate
