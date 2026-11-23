@@ -4,12 +4,12 @@ from langchain_core.prompts import PromptTemplate
 
 
 class FinancialChatbot:
-    def __init__(
+   def __init__(
         self,
         df_alloc,
         df_financial,
         api_key,
-        model_name="gemini-2.5-flash",
+        model_name="gemini-3.8-flash",
         evaluation_threshold=0.7,
     ) -> None:
         self.df_alloc = df_alloc
