@@ -82,7 +82,7 @@ streamlit run app.py
 
 ## Tools used
 
-- [OpenAI](https://openai.com/) for the GPT LLM models.
+- [GeminiAI](https://gemini.google.com/) for the GPT LLM models.
 - [DeepEval](https://docs.confident-ai.com/) for the model evaluation layer.
 - [LangChain](https://python.langchain.com/v0.2/docs/introduction/) for the language model framework.
 - [Streamlit](https://docs.streamlit.io/) for the easy-to-use web application framework.
