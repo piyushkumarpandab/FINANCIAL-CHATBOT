@@ -30,7 +30,7 @@ def get_data(alloc_file, financ_file):
 # sidebar settings - api key and data upload
 with st.sidebar:
     data_ready = False
-    api_key = st.text_input("OpenAI API key", type="password")
+    api_key = st.text_input("GeminiAI API key", type="password")
 
     alloc_file = st.file_uploader("Upload target allocations file")
     financ_file = st.file_uploader("Upload financial data file")
