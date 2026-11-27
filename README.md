@@ -62,7 +62,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 - Open your browser and go to http://localhost:8501.
-- Enter your OpenAI API key.
+- Enter your Google GeminiAI API key.
 - Upload CSV files
 - Start asking questions in the chat interface.
 
